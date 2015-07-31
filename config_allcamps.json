@@ -1,9 +1,13 @@
 {
     "park_ids": [
-        "70925",
-        "70926",
-        "70927",
-        "70928"
+        "70924", #wawona, ca
+        "70925", # upper pines
+        "70926", # tuolumne meadows
+        "70927", # north pines ca
+        "70928", # lower pines ca
+        "70929", # hodgdedon meadow
+        "70930", # crane flat ca
+        "70931"  # BRIDALVEIL
     ],
     "emails": [
         "lfranchi@gmail.com"
@@ -47,6 +51,10 @@
         },
         {
             "start_date": "10/23/2015",
+            "length": 2
+        },
+        {
+            "start_date": "10/30/2015",
             "length": 2
         },
         {

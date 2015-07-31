@@ -69,10 +69,14 @@ for trip in config['trips']:
             site_url = site_number_tag['href']
             if site_number.startswith('HRS'):  # horse campsite
                 continue
+            elif site_number.startswith('RV'):  # RV campsite
+                continue
 
             status_tags = camp.select('.status')
             for day_str, status_tag in zip(day_strs, status_tags):
                 if status_tag.string in ('R', 'X'):  # reserved, unavailable
+                    unavail_camps[day_str][camp_name].append(site_number)
+                elif status_tag.string in ('w', 'W', 'n', 'N'):  # Walk-in or closed for the season
                     unavail_camps[day_str][camp_name].append(site_number)
                 elif status_tag.string == 'C':
                     avail_camps[day_str][camp_name].append((site_number,
@@ -81,14 +85,31 @@ for trip in config['trips']:
                     found += 1
 
                 else:
-                    reservation_url = BASE_URL + status_tag.find('a')['href']
-                    avail_camps[day_str][camp_name].append((site_number,
-                                                            reservation_url,
-                                                            'reserve'))
-                    found += 1
+                    if not status_tag.find('a'):
+                        print "No <a> tag for this camp: %s on %s with site num %s and url %s." % (camp_name, day_str, site_number, site_url)
+                        print "Status tag string is %s" % (status_tag.string,)
+                        unavail_camps[day_str][camp_name].append(site_number)
+                    else:
+                        reservation_url = BASE_URL + status_tag.find('a')['href']
+                        avail_camps[day_str][camp_name].append((site_number,
+                                                                reservation_url,
+                                                                'reserve'))
+                        found += 1
+
+    if len(avail_camps.items()) == 0:
+        continue
+    # filter out empty dates
+    #print "Starting with %s" % (trip['start_date'],)
+    total_avail = sum(map(len, [c.values() for c in avail_camps.values()]))
+    #print "Total avail: %s" % total_avail
+    if total_avail == 0:
+        continue
 
     body += TRIP.format(trip['start_date'])
     for day_str, camps in iter(sorted(avail_camps.iteritems())):
+        #print "Found %s, %s" % (day_str, camps)
+        if not camps:
+            continue
         camps_html = '' if camps else 'None'
         for camp_name, sites in camps.iteritems():
             sites_html = '' if sites else 'None'
@@ -111,7 +132,7 @@ h = HTMLParser.HTMLParser()
 inlined_html = h.unescape(response.text)
 
 requests.post(MG_URL, auth=('api', MG_KEY), data={
-    'from': '"Yosemite Campsite Scraper" <yosemite@schlosser.io>',
+    'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',
     'to': ','.join(config['emails']),
     'subject': 'Found {} camp sites near Yosemite'.format(found),
     'html': inlined_html
