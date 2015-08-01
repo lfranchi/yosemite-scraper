@@ -3,14 +3,16 @@ import requests
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from collections import defaultdict
-from secrets import MG_KEY, MG_DOMAIN
+from secrets import *
 import HTMLParser
 import sys
+from twilio.rest import TwilioRestClient
 
 BASE_URL = 'http://www.recreation.gov'
 REQUEST_URL = BASE_URL + '/campsiteCalendar.do'
 MG_URL = 'https://api.mailgun.net/v3/{}/messages'.format(MG_DOMAIN)
 INLINER_URL = 'https://inlinestyler.torchbox.com/styler/convert/'
+client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 config = None
 with open('config.json') as config_file:
@@ -130,6 +132,13 @@ response = requests.post(INLINER_URL, data={
 })
 h = HTMLParser.HTMLParser()
 inlined_html = h.unescape(response.text)
+
+# Text me as well
+client.messages.create(
+    to=MY_PHONE,
+    from_="+15126776870",
+    body="Found Yosemite Campsite, check your email!"
+)
 
 requests.post(MG_URL, auth=('api', MG_KEY), data={
     'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',

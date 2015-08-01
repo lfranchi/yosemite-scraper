@@ -1,14 +1,17 @@
 {
     "park_ids": [
-        "70926"
+        "70925",
+        "70927",
+        "70928"
     ],
     "emails": [
         "lfranchi@gmail.com"
     ],
     "trips": [
-        {
-            "start_date": "08/22/2015",
+	{
+            "start_date": "10/03/2015",
             "length": 1
         }
+
     ]
 }
