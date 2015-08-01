@@ -1,81 +1,14 @@
 {
     "park_ids": [
-        "70925",
-        "70926",
-        "70927",
-        "70928"
+        "70926"
     ],
     "emails": [
         "lfranchi@gmail.com"
     ],
     "trips": [
         {
-            "start_date": "08/21/2015",
-            "length": 2
-        },
-        {
-            "start_date": "08/28/2015",
-            "length": 2
-        },
-        {
-            "start_date": "09/04/2015",
-            "length": 2
-        },
-        {
-            "start_date": "09/11/2015",
-            "length": 2
-        },
-        {
-            "start_date": "09/18/2015",
-            "length": 2
-        },
-        {
-            "start_date": "09/25/2015",
-            "length": 2
-        },
-        {
-            "start_date": "10/2/2015",
-            "length": 2
-        },
-        {
-            "start_date": "10/9/2015",
-            "length": 2
-        },
-        {
-            "start_date": "10/16/2015",
-            "length": 2
-        },
-        {
-            "start_date": "10/23/2015",
-            "length": 2
-        },
-        {
-            "start_date": "11/6/2015",
-            "length": 2
-        },
-        {
-            "start_date": "11/13/2015",
-            "length": 2
-        },
-        {
-            "start_date": "11/20/2015",
-            "length": 2
-        },
-        {
-            "start_date": "11/27/2015",
-            "length": 2
-        },
-        {
-            "start_date": "12/4/2015",
-            "length": 2
-        },
-        {
-            "start_date": "12/11/2015",
-            "length": 2
-        },
-        {
-            "start_date": "12/18/2015",
-            "length": 2
+            "start_date": "08/22/2015",
+            "length": 1
         }
     ]
 }
