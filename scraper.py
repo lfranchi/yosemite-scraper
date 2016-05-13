@@ -42,7 +42,9 @@ found = 0
 for trip in config['trips']:
 
     start_date = datetime.strptime(trip['start_date'], '%m/%d/%Y')
-    days = [start_date + timedelta(days=i) for i in range(trip['length'])]
+    #days = [start_date + timedelta(days=i) for i in range(trip['length'])]
+    # Only match the exact number of days requested
+    days = [start_date + timedelta(days=trip['length'])]
     day_strs = [day.strftime('%m/%d/%Y') for day in days]
 
     avail_camps = dict((day_str, defaultdict(list)) for day_str in day_strs)
@@ -72,6 +74,8 @@ for trip in config['trips']:
             if site_number.startswith('HRS'):  # horse campsite
                 continue
             elif site_number.startswith('RV'):  # RV campsite
+                continue
+            elif 'BOAT-IN' in site_number:
                 continue
 
             status_tags = camp.select('.status')
@@ -109,7 +113,7 @@ for trip in config['trips']:
 
     body += TRIP.format(trip['start_date'])
     for day_str, camps in iter(sorted(avail_camps.iteritems())):
-        #print "Found %s, %s" % (day_str, camps)
+        print "Found %s, %s" % (day_str, camps)
         if not camps:
             continue
         camps_html = '' if camps else 'None'
@@ -135,8 +139,8 @@ inlined_html = h.unescape(response.text)
 
 # Text me as well
 client.messages.create(
-    to=MY_PHONE,
-    from_="+15126776870",
+    to=TARGET_PHONE,
+    from_=TWILIO_SOURCE_PHONE,
     body="Found Yosemite Campsite, check your email!"
 )
 
