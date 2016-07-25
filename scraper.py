@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from secrets import *
+from templates import *
 import HTMLParser
 import sys
 from twilio.rest import TwilioRestClient
@@ -18,26 +19,6 @@ config = None
 with open('config.json') as config_file:
     config = json.loads(config_file.read())
 
-HTML = '''
-<style>{}</style>{}
-'''
-body = ''
-TRIP = '''<h2>Trip on {}</h2>
-'''
-DAY = '''<h4>{}</h4>
-<ul>
-{}
-</ul>
-'''
-CAMP = '''<li>
-<h5>{}</h5>
-<ul>
-{}
-</ul>
-</li>
-'''
-SITE = '<li>{} (<a href="{}">{}</a>)</li>'
-
 found = 0
 for trip in config['trips']:
 
@@ -50,7 +31,8 @@ for trip in config['trips']:
     avail_camps = dict((day_str, defaultdict(list)) for day_str in day_strs)
     unavail_camps = dict((day_str, defaultdict(list)) for day_str in day_strs)
 
-    for park_id in config['park_ids']:
+    for park_id in trip['park_ids']:
+        # print "Requesting campsite for park {} on {}".format(park_id, git trip['start_date'])
         response = requests.get(REQUEST_URL, params={
             'page': 'matrix',
             'contractCode': 'NRSO',
