@@ -1,6 +1,6 @@
 beautifulsoup4==4.3.2
-cffi==1.1.2
-cryptography==0.9.1
+cffi==1.7
+cryptography==1.4
 enum34==1.0.4
 idna==2.0
 ipaddress==1.0.7
