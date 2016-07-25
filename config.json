@@ -8,8 +8,85 @@
             "type": "inyo_permit",
             "trailhead_entrance_id": 315402,
             "permit_type_id": 1009473456,
+            "start_date": "8/26/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/27/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/27/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/29/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/30/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/31/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "9/1/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "9/2/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315540,
+            "permit_type_id": 1009473456,
+            "start_date": "8/24/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315540,
+            "permit_type_id": 1009473456,
             "start_date": "8/25/2016",
-            "group_size": 1
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315540,
+            "permit_type_id": 1009473456,
+            "start_date": "8/26/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315540,
+            "permit_type_id": 1009473456,
+            "start_date": "8/27/2016",
+            "group_size": 2
         }
     ]
 }
