@@ -186,14 +186,14 @@ def send_permit_notifications(found_url, to_emails):
     client.messages.create(
         to=TARGET_PHONE,
         from_=TWILIO_SOURCE_PHONE,
-        body="Found Inyo Permit: check {}".format(found_url)
+        body="Found Inyo Permit: check your email!"
     )
 
     requests.post(MG_URL, auth=('api', MG_KEY), data={
         'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',
         'to': ','.join(to_emails),
         'subject': 'Found permits for Inyo National Forest!',
-        'text': "Found Inyo permits, check your emaik!"
+        'text': "Found Inyo Permit: check {}".format(found_url)
     })
 
 
