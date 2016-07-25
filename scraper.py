@@ -10,7 +10,8 @@ import sys
 from twilio.rest import TwilioRestClient
 
 BASE_URL = 'http://www.recreation.gov'
-REQUEST_URL = BASE_URL + '/campsiteCalendar.do'
+CAMP_REQUEST_URL = BASE_URL + '/campsiteCalendar.do'
+PERMIT_REQUEST_URL = BASE_URL + "/permits/{entrance_name}/r/entranceDetails.do"
 MG_URL = 'https://api.mailgun.net/v3/{}/messages'.format(MG_DOMAIN)
 INLINER_URL = 'https://inlinestyler.torchbox.com/styler/convert/'
 client = TwilioRestClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
@@ -19,29 +20,28 @@ config = None
 with open('config.json') as config_file:
     config = json.loads(config_file.read())
 
-found = 0
-for trip in config['trips']:
-
-    start_date = datetime.strptime(trip['start_date'], '%m/%d/%Y')
-    #days = [start_date + timedelta(days=i) for i in range(trip['length'])]
+def find_campsite(campsite_request):
+    found = 0
+    start_date = datetime.strptime(campsite_request['start_date'], '%m/%d/%Y')
     # Only match the exact number of days requested
-    days = [start_date + timedelta(days=trip['length'])]
+    days = [start_date + timedelta(days=campsite_request['length'])]
     day_strs = [day.strftime('%m/%d/%Y') for day in days]
 
     avail_camps = dict((day_str, defaultdict(list)) for day_str in day_strs)
     unavail_camps = dict((day_str, defaultdict(list)) for day_str in day_strs)
 
-    for park_id in trip['park_ids']:
-        # print "Requesting campsite for park {} on {}".format(park_id, git trip['start_date'])
-        response = requests.get(REQUEST_URL, params={
+    for park_id in campsite_request['park_ids']:
+        # print "Requesting campsite for park {} on {} for {} days".format(
+        #     park_id, campsite_request['start_date'], campsite_request['length'])
+        response = requests.get(CAMP_REQUEST_URL, params={
             'page': 'matrix',
             'contractCode': 'NRSO',
-            'calarvdate': trip['start_date'],
+            'calarvdate': campsite_request['start_date'],
             'parkId': park_id
         })
         if not response.ok:
             print "Request failed for park {} on {}".format(park_id,
-                                                            trip['start_date'])
+                                                            campsite_request['start_date'])
             continue
 
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -85,19 +85,19 @@ for trip in config['trips']:
                         found += 1
 
     if len(avail_camps.items()) == 0:
-        continue
+        return None, None
     # filter out empty dates
-    #print "Starting with %s" % (trip['start_date'],)
+    #print "Starting with %s" % (campsite_request['start_date'],)
     total_avail = sum(map(len, [c.values() for c in avail_camps.values()]))
     #print "Total avail: %s" % total_avail
     if total_avail == 0:
-        continue
+        return None, None
 
-    body += TRIP.format(trip['start_date'])
+    body = TRIP.format(campsite_request['start_date'])
     for day_str, camps in iter(sorted(avail_camps.iteritems())):
         print "Found %s, %s" % (day_str, camps)
         if not camps:
-            continue
+            return None, None
         camps_html = '' if camps else 'None'
         for camp_name, sites in camps.iteritems():
             sites_html = '' if sites else 'None'
@@ -106,29 +106,104 @@ for trip in config['trips']:
             camps_html += CAMP.format(camp_name, sites_html)
         body += DAY.format(day_str, camps_html)
 
-if not found:
-    sys.exit()
+    return found, body
 
-with open('style.min.css') as css_file:
-    html = HTML.format(css_file.read(), body)
+def send_campsite_notifications(num_found, body):
+    with open('style.min.css') as css_file:
+        html = HTML.format(css_file.read(), body)
 
-response = requests.post(INLINER_URL, data={
-    'returnraw': 'y',
-    'source': html
-})
-h = HTMLParser.HTMLParser()
-inlined_html = h.unescape(response.text)
+    response = requests.post(INLINER_URL, data={
+        'returnraw': 'y',
+        'source': html
+    })
+    h = HTMLParser.HTMLParser()
+    inlined_html = h.unescape(response.text)
 
-# Text me as well
-client.messages.create(
-    to=TARGET_PHONE,
-    from_=TWILIO_SOURCE_PHONE,
-    body="Found Yosemite Campsite, check your email!"
-)
+    # Text me as well
+    client.messages.create(
+        to=TARGET_PHONE,
+        from_=TWILIO_SOURCE_PHONE,
+        body="Found Yosemite Campsites, check your email!"
+    )
 
-requests.post(MG_URL, auth=('api', MG_KEY), data={
-    'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',
-    'to': ','.join(config['emails']),
-    'subject': 'Found {} camp sites near Yosemite'.format(found),
-    'html': inlined_html
-})
+    requests.post(MG_URL, auth=('api', MG_KEY), data={
+        'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',
+        'to': ','.join(config['emails']),
+        'subject': 'Found {} camp sites near Yosemite'.format(num_found),
+        'html': inlined_html
+    })
+
+
+def find_inyo_permits(permit_request):
+    entry_date = datetime.strptime(permit_request['start_date'], '%m/%d/%Y')
+    entry_date_formatted = entry_date.strftime('%m/%d/%Y')
+    trailhead_entrance_id = int(permit_request['trailhead_entrance_id'])
+    permit_type_id = int(permit_request['permit_type_id'])
+    group_size = int(permit_request['group_size'])
+
+    park_id = 72203 # Inyo national forest
+
+
+    # this part of the path seems to be unused: it's usually the name of the
+    # entrance (spaces replaced with _) but doesn't seem to matter if it's different
+    # so we ignore it
+    request_url = PERMIT_REQUEST_URL.format(entrance_name="unused")
+    response = requests.get(request_url, params={
+            'parkId': park_id,
+            'entranceId': trailhead_entrance_id,
+            'pGroupSize': group_size,
+            'permitTypeId': permit_type_id,
+            'arvdate': entry_date_formatted,
+            'contractCode': 'NRSO',
+        })
+    # print "Requesting permit with URL: {}".format(response.url)
+
+    if not response.ok:
+        print "Request failed for permit {} on {}\n\nURL was: {}".format(
+            trailhead_entrance_id, entry_date_formatted, response.url)
+        return
+
+
+    # Parse response page :)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    permit_grid = soup.find(id="permitGridContainer")
+
+    # First grid item is the desired day
+    first_row = permit_grid.find('tbody').find('td')
+
+    # If there's a link with "A" in it, it's available
+    avail_link = first_row.find("a")
+    permit_available = avail_link and 'A' in avail_link.text.upper()
+    if permit_available:
+        print "Available permit!"
+    else:
+        print "All permits reserved :-/"
+
+    return permit_available, response.url
+
+def send_permit_notifications(found_url, to_emails):
+    # Text me as well
+    client.messages.create(
+        to=TARGET_PHONE,
+        from_=TWILIO_SOURCE_PHONE,
+        body="Found Inyo Permit: check {}".format(found_url)
+    )
+
+    requests.post(MG_URL, auth=('api', MG_KEY), data={
+        'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',
+        'to': ','.join(to_emails),
+        'subject': 'Found permits for Inyo National Forest!',
+        'text': "Found Inyo permits, check your emaik!"
+    })
+
+
+for trip_request in config['trips']:
+    request_type = trip_request.get("type", "campsite")
+    if request_type == "campsite":
+        num_found, found_campsites = find_campsite(trip_request)
+        if found_campsites:
+            send_campsite_notifications(num_found, found_campsites)
+    elif request_type == "inyo_permit":
+        found, url = find_inyo_permits(trip_request)
+        if found:
+            send_permit_notifications(url, config['emails'])

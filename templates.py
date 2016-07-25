@@ -1,7 +1,6 @@
 HTML = '''
 <style>{}</style>{}
 '''
-body = ''
 TRIP = '''<h2>Trip on {}</h2>
 '''
 DAY = '''<h4>{}</h4>

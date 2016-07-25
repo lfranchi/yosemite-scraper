@@ -1,17 +1,15 @@
 {
     "emails": [
-        "lfranchi@gmail.com"
+        "lfranchi@gmail.com",
+        "ayelet.bitton@gmail.com"
     ],
     "trips": [
 	    {
-            "park_ids": [
-                "70925",
-                "70927",
-                "70928"
-            ],
-            "start_date": "10/03/2015",
-            "length": 1
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/25/2016",
+            "group_size": 1
         }
-
     ]
 }
