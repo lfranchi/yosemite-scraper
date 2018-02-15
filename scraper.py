@@ -20,6 +20,16 @@ config = None
 with open('config.json') as config_file:
     config = json.loads(config_file.read())
 
+def extract_camps_from_page(page_soup):
+    """Follow all 'next' links"""
+
+    camp_name = camp_soup.find(id='cgroundName').string
+    calendar_body = soup.select('#calendar tbody')[0]
+    camps = calendar_body.find_all('tr', attrs={'class': None})
+
+    
+
+
 def find_campsite(campsite_request):
     found = 0
     start_date = datetime.strptime(campsite_request['start_date'], '%m/%d/%Y')
@@ -31,14 +41,17 @@ def find_campsite(campsite_request):
     unavail_camps = dict((day_str, defaultdict(list)) for day_str in day_strs)
 
     for park_id in campsite_request['park_ids']:
-        # print "Requesting campsite for park {} on {} for {} days".format(
-        #     park_id, campsite_request['start_date'], campsite_request['length'])
-        response = requests.get(CAMP_REQUEST_URL, params={
+        #print "Requesting campsite for park {} on {} for {} days".format(
+        #    park_id, campsite_request['start_date'], campsite_request['length'])
+        payload = {
             'page': 'matrix',
             'contractCode': 'NRSO',
             'calarvdate': campsite_request['start_date'],
             'parkId': park_id
-        })
+        }
+        payload_str = "&".join("%s=%s" % (k,v) for k,v in payload.items())
+        response = requests.get(CAMP_REQUEST_URL, params=payload_str)
+        print "URL is: " + response.url
         if not response.ok:
             print "Request failed for park {} on {}".format(park_id,
                                                             campsite_request['start_date'])
@@ -59,9 +72,12 @@ def find_campsite(campsite_request):
                 continue
             elif 'BOAT-IN' in site_number:
                 continue
+            elif '040' in site_number:
+                continue # TEMPORARY HACK FOR RV NONELECTRIC
 
             status_tags = camp.select('.status')
             for day_str, status_tag in zip(day_strs, status_tags):
+                print "Checking for: " + day_str + ": " + status_tag.string
                 if status_tag.string in ('R', 'X'):  # reserved, unavailable
                     unavail_camps[day_str][camp_name].append(site_number)
                 elif status_tag.string in ('w', 'W', 'n', 'N'):  # Walk-in or closed for the season
@@ -85,7 +101,10 @@ def find_campsite(campsite_request):
                         found += 1
 
     if len(avail_camps.items()) == 0:
+        print "Nothing found..."
         return None, None
+    from pprint import pprint as pp
+    pp(avail_camps)
     # filter out empty dates
     #print "Starting with %s" % (campsite_request['start_date'],)
     total_avail = sum(map(len, [c.values() for c in avail_camps.values()]))
@@ -120,11 +139,18 @@ def send_campsite_notifications(num_found, body):
     inlined_html = h.unescape(response.text)
 
     # Text me as well
-    client.messages.create(
-        to=TARGET_PHONE,
-        from_=TWILIO_SOURCE_PHONE,
-        body="Found Yosemite Campsites, check your email!"
-    )
+    # extract url
+    soup = BeautifulSoup(html, 'html.parser')
+    url = soup.find('a')['href']
+    tmp_file = open('/tmp/yosemite_scraper_urls.log', 'a')
+    tmp_file.write(url + '\n')
+    tmp_file.close()
+    
+    #client.messages.create(
+    #    to=TARGET_PHONE,
+    #    from_=TWILIO_SOURCE_PHONE,
+    #    body="Found Yosemite Campsites, check your email!"
+    #)
 
     requests.post(MG_URL, auth=('api', MG_KEY), data={
         'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',
@@ -186,7 +212,7 @@ def send_permit_notifications(found_url, to_emails):
     client.messages.create(
         to=TARGET_PHONE,
         from_=TWILIO_SOURCE_PHONE,
-        body="Found Inyo Permit: check your email!"
+        body="Found Inyo Permit: check your email or click here: %s" % (found_url,)
     )
 
     requests.post(MG_URL, auth=('api', MG_KEY), data={
