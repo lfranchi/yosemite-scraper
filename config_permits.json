@@ -1,0 +1,107 @@
+{
+    "emails": [
+        "lfranchi@gmail.com",
+        "ayelet.bitton09@gmail.com"
+    ],
+    "trips": [
+    { # North Fork Lone Pine Creek (Whitney)
+      "type": "inyo_permit",
+      "trailhead_entrance_id": 315516,
+      "permit_type_id": 1009487185,
+      "start_date": "7/26/2018",
+      "group_size": 2
+    },
+    { # North Fork Big Pine Creek (Palisades)
+      "type": "inyo_permit",
+      "trailhead_entrance_id": 315402,
+      "permit_type_id": 1009466832,
+      "start_date": "7/26/2018",
+      "group_size": 2
+    }
+
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/26/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/27/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/27/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/29/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/30/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "8/31/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "9/1/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315402,
+            "permit_type_id": 1009473456,
+            "start_date": "9/2/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315503,
+            "permit_type_id": 1009473456,
+            "start_date": "8/25/2016",
+            "group_size": 2
+        },
+	    {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315503,
+            "permit_type_id": 1009473456,
+            "start_date": "8/24/2016",
+            "group_size": 2
+        },
+        {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315503,
+            "permit_type_id": 1009473456,
+            "start_date": "8/23/2016",
+            "group_size": 2
+        },
+        {
+            "type": "inyo_permit",
+            "trailhead_entrance_id": 315503,
+            "permit_type_id": 1009473456,
+            "start_date": "8/26/2016",
+            "group_size": 2
+        }
+    ]
+}
