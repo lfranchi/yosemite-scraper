@@ -1,12 +1,12 @@
 import json
+from html.parser import HTMLParser
+
 import requests
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from secrets import *
 from templates import *
-import HTMLParser
-import sys
 from twilio.rest import TwilioRestClient
 
 BASE_URL = 'http://www.recreation.gov'
@@ -27,8 +27,6 @@ def extract_camps_from_page(page_soup):
     calendar_body = soup.select('#calendar tbody')[0]
     camps = calendar_body.find_all('tr', attrs={'class': None})
 
-    
-
 
 def find_campsite(campsite_request):
     found = 0
@@ -41,7 +39,7 @@ def find_campsite(campsite_request):
     unavail_camps = dict((day_str, defaultdict(list)) for day_str in day_strs)
 
     for park_id in campsite_request['park_ids']:
-        #print "Requesting campsite for park {} on {} for {} days".format(
+        # print "Requesting campsite for park {} on {} for {} days".format(
         #    park_id, campsite_request['start_date'], campsite_request['length'])
         payload = {
             'page': 'matrix',
@@ -49,12 +47,14 @@ def find_campsite(campsite_request):
             'calarvdate': campsite_request['start_date'],
             'parkId': park_id
         }
-        payload_str = "&".join("%s=%s" % (k,v) for k,v in payload.items())
+        payload_str = "&".join(
+            "%s=%s" % (k, v) for k, v in list(payload.items()))
         response = requests.get(CAMP_REQUEST_URL, params=payload_str)
-        print "URL is: " + response.url
+        print("URL is: " + response.url)
         if not response.ok:
-            print "Request failed for park {} on {}".format(park_id,
-                                                            campsite_request['start_date'])
+            print("Request failed for park {} on {}".format(park_id,
+                                                            campsite_request[
+                                                                'start_date']))
             continue
 
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -72,15 +72,14 @@ def find_campsite(campsite_request):
                 continue
             elif 'BOAT-IN' in site_number:
                 continue
-            elif '040' in site_number:
-                continue # TEMPORARY HACK FOR RV NONELECTRIC
 
             status_tags = camp.select('.status')
             for day_str, status_tag in zip(day_strs, status_tags):
-                print "Checking for: " + day_str + ": " + status_tag.string
+                # print("Checking for: " + day_str + ": " + status_tag.string)
                 if status_tag.string in ('R', 'X'):  # reserved, unavailable
                     unavail_camps[day_str][camp_name].append(site_number)
-                elif status_tag.string in ('w', 'W', 'n', 'N'):  # Walk-in or closed for the season
+                elif status_tag.string in (
+                'w', 'W', 'n', 'N'):  # Walk-in or closed for the season
                     unavail_camps[day_str][camp_name].append(site_number)
                 elif status_tag.string == 'C':
                     avail_camps[day_str][camp_name].append((site_number,
@@ -90,35 +89,39 @@ def find_campsite(campsite_request):
 
                 else:
                     if not status_tag.find('a'):
-                        print "No <a> tag for this camp: %s on %s with site num %s and url %s." % (camp_name, day_str, site_number, site_url)
-                        print "Status tag string is %s" % (status_tag.string,)
+                        print(
+                            "No <a> tag for this camp: %s on %s with site num %s and url %s." % (
+                            camp_name, day_str, site_number, site_url))
+                        print("Status tag string is %s" % (status_tag.string,))
                         unavail_camps[day_str][camp_name].append(site_number)
                     else:
-                        reservation_url = BASE_URL + status_tag.find('a')['href']
+                        reservation_url = BASE_URL + status_tag.find('a')[
+                            'href']
                         avail_camps[day_str][camp_name].append((site_number,
                                                                 reservation_url,
                                                                 'reserve'))
                         found += 1
 
-    if len(avail_camps.items()) == 0:
-        print "Nothing found..."
+    if len(list(avail_camps.items())) == 0:
+        print("Nothing found...")
         return None, None
     from pprint import pprint as pp
     pp(avail_camps)
     # filter out empty dates
-    #print "Starting with %s" % (campsite_request['start_date'],)
-    total_avail = sum(map(len, [c.values() for c in avail_camps.values()]))
-    #print "Total avail: %s" % total_avail
+    # print "Starting with %s" % (campsite_request['start_date'],)
+    total_avail = sum(
+        map(len, [list(c.values()) for c in list(avail_camps.values())]))
+    # print "Total avail: %s" % total_avail
     if total_avail == 0:
         return None, None
 
     body = TRIP.format(campsite_request['start_date'])
-    for day_str, camps in iter(sorted(avail_camps.iteritems())):
-        print "Found %s, %s" % (day_str, camps)
+    for day_str, camps in iter(sorted(avail_camps.items())):
+        print("Found %s, %s" % (day_str, camps))
         if not camps:
             return None, None
         camps_html = '' if camps else 'None'
-        for camp_name, sites in camps.iteritems():
+        for camp_name, sites in camps.items():
             sites_html = '' if sites else 'None'
             for site_number, url, action in sites:
                 sites_html += SITE.format(site_number, url, action)
@@ -135,7 +138,7 @@ def send_campsite_notifications(num_found, body):
         'returnraw': 'y',
         'source': html
     })
-    h = HTMLParser.HTMLParser()
+    h = HTMLParser()
     inlined_html = h.unescape(response.text)
 
     # Text me as well
@@ -146,11 +149,11 @@ def send_campsite_notifications(num_found, body):
     tmp_file.write(url + '\n')
     tmp_file.close()
     
-    #client.messages.create(
+    # client.messages.create(
     #    to=TARGET_PHONE,
     #    from_=TWILIO_SOURCE_PHONE,
     #    body="Found Yosemite Campsites, check your email!"
-    #)
+    # )
 
     requests.post(MG_URL, auth=('api', MG_KEY), data={
         'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',
@@ -169,26 +172,27 @@ def find_inyo_permits(permit_request):
 
     park_id = 72203 # Inyo national forest
 
-
     # this part of the path seems to be unused: it's usually the name of the
     # entrance (spaces replaced with _) but doesn't seem to matter if it's different
     # so we ignore it
-    request_url = PERMIT_REQUEST_URL.format(entrance_name="unused")
-    response = requests.get(request_url, params={
-            'parkId': park_id,
-            'entranceId': trailhead_entrance_id,
-            'pGroupSize': group_size,
-            'permitTypeId': permit_type_id,
-            'arvdate': entry_date_formatted,
-            'contractCode': 'NRSO',
-        })
-    # print "Requesting permit with URL: {}".format(response.url)
+    request_url = PERMIT_REQUEST_URL.format(entrance_name="")
+    payload = {
+        'parkId': park_id,
+        'entranceId': trailhead_entrance_id,
+        'pGroupSize': group_size,
+        'permitTypeId': permit_type_id,
+        'arvdate': entry_date_formatted,
+        'contractCode': 'NRSO',
+    }
+    payload_str = "&".join(
+        "%s=%s" % (k, v) for k, v in list(payload.items()))
+    response = requests.get(request_url, params=payload_str)
+    print(f"Requesting permit with URL: {response.url}")
 
     if not response.ok:
-        print "Request failed for permit {} on {}\n\nURL was: {}".format(
-            trailhead_entrance_id, entry_date_formatted, response.url)
+        print("Request failed for permit {} on {}\n\nURL was: {}".format(
+            trailhead_entrance_id, entry_date_formatted, response.url))
         return
-
 
     # Parse response page :)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -201,19 +205,19 @@ def find_inyo_permits(permit_request):
     avail_link = first_row.find("a")
     permit_available = avail_link and 'A' in avail_link.text.upper()
     if permit_available:
-        print "Available permit!"
+        print("Available permit!")
     else:
-        print "All permits reserved :-/"
+        print("All permits reserved :-/")
 
     return permit_available, response.url
 
 def send_permit_notifications(found_url, to_emails):
     # Text me as well
-    client.messages.create(
-        to=TARGET_PHONE,
-        from_=TWILIO_SOURCE_PHONE,
-        body="Found Inyo Permit: check your email or click here: %s" % (found_url,)
-    )
+    # client.messages.create(
+    #     to=TARGET_PHONE,
+    #     from_=TWILIO_SOURCE_PHONE,
+    #     body="Found Inyo Permit: check your email or click here: %s" % (found_url,)
+    # )
 
     requests.post(MG_URL, auth=('api', MG_KEY), data={
         'from': '"Yosemite Campsite Scraper" <yosemite@lfranchi.com>',
