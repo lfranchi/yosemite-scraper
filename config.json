@@ -5,13 +5,11 @@
   ],
   "trips": [
     {
-      "type": "campsite",
-      "park_ids": [
-        "70926"
-      ],
+      "type": "individual_campsite",
+      "park_id": "70926",
+      "site_ids": ["203433", "203440", "203446", "203450", "203454", "203459", "203463"],
       "start_date": "07/13/2018",
-      "length": 2,
-      "sitefilter": "GROUP TENT ONLY AREA NONELECTRIC"
+      "length": 1
     },
     {
       "type": "inyo_permit",

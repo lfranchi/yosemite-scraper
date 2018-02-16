@@ -16,9 +16,23 @@
                 "70931"  # BRIDALVEIL
             ]
             "start_date": "08/21/2015",
-            "length": 2,
-            "sitefilter": "GROUP TENT ONLY AREA NONELECTRIC" # OPTIONAL
+            "length": 2
         },
+        {
+            "type": "individual_campsite",
+            "park_id": "70926",
+            "site_ids": [
+                "203433",
+                "203440",
+                "203446",
+                "203450",
+                "203454",
+                "203459",
+                "203463"
+            ],
+            "start_date": "07/13/2018",
+            "length": 1
+        }
         {
             "type": "inyo_permit",
             "trailhead_entrance_id": 315402,
