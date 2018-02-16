@@ -47,6 +47,9 @@ def find_campsite(campsite_request):
             'calarvdate': campsite_request['start_date'],
             'parkId': park_id
         }
+        site_filter = campsite_request.get('sitefilter')
+        if site_filter:
+            payload['sitefilter'] = site_filter
         payload_str = "&".join(
             "%s=%s" % (k, v) for k, v in list(payload.items()))
         response = requests.get(CAMP_REQUEST_URL, params=payload_str)
