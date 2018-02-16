@@ -27,6 +27,12 @@ def extract_camps_from_page(page_soup):
     calendar_body = soup.select('#calendar tbody')[0]
     camps = calendar_body.find_all('tr', attrs={'class': None})
 
+def extract_camps(soup):
+    camp_name = soup.find(id='cgroundName').string
+    calendar_body = soup.select('#calendar tbody')[0]
+    camps = calendar_body.find_all('tr', attrs={'class': None})
+
+    return camps, camp_name
 
 def find_campsite(campsite_request):
     found = 0
@@ -47,9 +53,6 @@ def find_campsite(campsite_request):
             'calarvdate': campsite_request['start_date'],
             'parkId': park_id
         }
-        site_filter = campsite_request.get('sitefilter')
-        if site_filter:
-            payload['sitefilter'] = site_filter
         payload_str = "&".join(
             "%s=%s" % (k, v) for k, v in list(payload.items()))
         response = requests.get(CAMP_REQUEST_URL, params=payload_str)
@@ -61,9 +64,7 @@ def find_campsite(campsite_request):
             continue
 
         soup = BeautifulSoup(response.text, 'html.parser')
-        camp_name = soup.find(id='cgroundName').string
-        calendar_body = soup.select('#calendar tbody')[0]
-        camps = calendar_body.find_all('tr', attrs={'class': None})
+        camps, camp_name = extract_camps(soup)
 
         for camp in camps:
             site_number_tag = camp.select('.siteListLabel a')[0]
@@ -132,6 +133,48 @@ def find_campsite(campsite_request):
         body += DAY.format(day_str, camps_html)
 
     return found, body
+
+def find_individual_campsites(body):
+    park_id = body['park_id']
+    start_date = body['start_date']
+    num_days = int(body['length'])
+
+    found_campsites = []
+    for site_id in body['site_ids']:
+        url = f"https://www.recreation.gov/camping/hodgdon-meadow/r/campsiteDetails.do?siteId={site_id}&contractCode=NRSO&parkId={park_id}&offset=0&arvdate={start_date}"
+
+        print(f"Checking individual site: {url}")
+
+        response = requests.get(url)
+        if not response.ok:
+            print(f"Request failed for individual site {url} :(")
+            continue
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+        camps, camp_name = extract_camps(soup)
+        for camp in camps:
+            status_tags = camp.select('.status')
+            wanted_days = status_tags[0:num_days]
+
+            def day_available(status_tag):
+                return status_tag.string.upper() == 'A'
+
+            if all(day_available(day) for day in wanted_days):
+                # YES!
+                found_campsites.append((site_id, url))
+
+    if not found_campsites:
+        return None, None
+
+    print(f"Found some individual campsites! {found_campsites}")
+
+    site_items = ''
+    for found_camp in found_campsites:
+        site_items += SITE.format(found_camp[0], found_camp[1], "link")
+    body = TRIP.format(start_date) + DAY.format(camp_name, site_items)
+
+    return len(found_campsites), body
+
 
 def send_campsite_notifications(num_found, body):
     with open('style.min.css') as css_file:
@@ -234,6 +277,10 @@ for trip_request in config['trips']:
     request_type = trip_request.get("type", "campsite")
     if request_type == "campsite":
         num_found, found_campsites = find_campsite(trip_request)
+        if found_campsites:
+            send_campsite_notifications(num_found, found_campsites)
+    elif request_type == "individual_campsite":
+        num_found, found_campsites = find_individual_campsites(trip_request)
         if found_campsites:
             send_campsite_notifications(num_found, found_campsites)
     elif request_type == "inyo_permit":
