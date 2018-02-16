@@ -1,63 +1,82 @@
 {
   "emails": [
-    "lfranchi@gmail.com"
+    "lfranchi@gmail.com",
+    "ayelet.bitton09@gmail.com"
   ],
   "trips": [
+    {
+      "type": "campsite",
+      "park_ids": [
+        "70926"
+      ],
+      "start_date": "07/13/2018",
+      "length": 2,
+      "sitefilter": "GROUP TENT ONLY AREA NONELECTRIC"
+    },
     {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "08/03/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "8/4/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "8/10/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "8/11/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "8/17/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "8/18/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "8/24/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "8/25/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,
       "start_date": "8/31/2018",
       "group_size": 2
-    },{
+    },
+    {
       "type": "inyo_permit",
       "trailhead_entrance_id": 315402,
       "permit_type_id": 1009466832,

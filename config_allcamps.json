@@ -16,7 +16,8 @@
                 "70931"  # BRIDALVEIL
             ]
             "start_date": "08/21/2015",
-            "length": 2
+            "length": 2,
+            "sitefilter": "GROUP TENT ONLY AREA NONELECTRIC" # OPTIONAL
         },
         {
             "type": "inyo_permit",
